@@ -1,0 +1,345 @@
+@page "/"
+@using Kuestenlogik.Surgewave.Samples.FleetTracker.Dashboard.Services
+@using Kuestenlogik.Surgewave.Samples.FleetTracker.Shared
+@using MudBlazor
+@rendermode RenderMode.InteractiveServer
+@inject FleetDataService FleetData
+@inject ClientPlaybackState Playback
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<MudGrid Style="height: 100%;">
+    <!-- Sidebar -->
+    <MudItem xs="12" md="3" Style="height: 100%; overflow-y: auto;">
+        <MudPaper Class="pa-4" Elevation="0">
+            <!-- Connection Status -->
+            <MudAlert Severity="@(Playback.IsConnected ? Severity.Success : Severity.Warning)"
+                      Class="mb-4" Dense="true">
+                @if (Playback.IsConnected)
+                {
+                    <text>Connected to Surgewave</text>
+                }
+                else
+                {
+                    <text>Connecting to Surgewave...</text>
+                }
+            </MudAlert>
+
+            <!-- Stats -->
+            <MudText Typo="Typo.subtitle2" Class="mb-2">Statistics</MudText>
+            <MudSimpleTable Dense="true" Class="mb-4">
+                <tbody>
+                    <tr>
+                        <td>Vehicles</td>
+                        <td><strong>@Playback.CurrentPositions.Count</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Messages</td>
+                        <td><strong>@Playback.MessageCount.ToString("N0")</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Offset</td>
+                        <td><strong>@Playback.CurrentOffset.ToString("N0")</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Latest</td>
+                        <td><strong>@Playback.LatestOffset.ToString("N0")</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Mode</td>
+                        <td><strong>@(Playback.IsLiveMode ? "Live" : "Replay")</strong></td>
+                    </tr>
+                </tbody>
+            </MudSimpleTable>
+
+            <!-- Vehicle List -->
+            <MudText Typo="Typo.subtitle2" Class="mb-2">Vehicles</MudText>
+            <MudList T="string" Dense="true">
+                @foreach (var vehicle in Playback.CurrentPositions.Values.OrderBy(v => v.VehicleId))
+                {
+                    <MudListItem Icon="@GetVehicleIcon(vehicle.Status)"
+                                 IconColor="@GetVehicleColor(vehicle.Status)"
+                                 OnClick="() => SelectVehicle(vehicle.VehicleId)">
+                        <MudText Typo="Typo.body2">
+                            @vehicle.VehicleId
+                            <MudText Typo="Typo.caption" Class="mud-text-secondary">
+                                @vehicle.DriverName - @vehicle.Speed.ToString("F0") km/h
+                            </MudText>
+                        </MudText>
+                    </MudListItem>
+                }
+            </MudList>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Map -->
+    <MudItem xs="12" md="9" Style="height: 100%; position: relative;">
+        <div id="map" style="width: 100%; height: calc(100% - 80px);"></div>
+
+        <!-- Time Control Panel -->
+        <MudPaper Class="pa-3" Style="position: absolute; bottom: 0; left: 0; right: 0; height: 80px;" Elevation="4">
+            <MudGrid>
+                <!-- Live/Replay Toggle -->
+                <MudItem xs="1" Class="d-flex align-center justify-center">
+                    <MudToggleIconButton Toggled="@Playback.IsLiveMode"
+                                         ToggledChanged="OnLiveModeChanged"
+                                         Icon="@Icons.Material.Filled.History"
+                                         ToggledIcon="@Icons.Material.Filled.Stream"
+                                         Color="Color.Primary"
+                                         ToggledColor="Color.Success"
+                                         Size="Size.Small" />
+                </MudItem>
+
+                <!-- Play/Pause Button (only in replay mode) -->
+                <MudItem xs="1" Class="d-flex align-center justify-center">
+                    @if (!Playback.IsLiveMode)
+                    {
+                        <MudIconButton Icon="@(Playback.IsPaused ? Icons.Material.Filled.PlayArrow : Icons.Material.Filled.Pause)"
+                                       Color="Color.Primary"
+                                       Size="Size.Small"
+                                       OnClick="OnPlayPauseClicked" />
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Success">LIVE</MudText>
+                    }
+                </MudItem>
+
+                <!-- Speed Selector (only in replay mode) -->
+                <MudItem xs="2" Class="d-flex align-center justify-center">
+                    @if (!Playback.IsLiveMode)
+                    {
+                        <MudButtonGroup Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary">
+                            <MudButton OnClick="() => SetSpeed(1.0)" Variant="@(Playback.PlaybackSpeed == 1.0 ? Variant.Filled : Variant.Outlined)">1x</MudButton>
+                            <MudButton OnClick="() => SetSpeed(2.0)" Variant="@(Playback.PlaybackSpeed == 2.0 ? Variant.Filled : Variant.Outlined)">2x</MudButton>
+                            <MudButton OnClick="() => SetSpeed(5.0)" Variant="@(Playback.PlaybackSpeed == 5.0 ? Variant.Filled : Variant.Outlined)">5x</MudButton>
+                        </MudButtonGroup>
+                    }
+                </MudItem>
+
+                <!-- Slider -->
+                <MudItem xs="5">
+                    <MudSlider Value="_sliderValue"
+                               Min="0"
+                               Max="100"
+                               Step="0.1"
+                               Disabled="Playback.IsLiveMode"
+                               Color="Color.Primary"
+                               ValueChanged="OnSliderChanged"
+                               T="double">
+                        <MudText Typo="Typo.caption">
+                            Offset: @Playback.EarliestOffset.ToString("N0") → @Playback.LatestOffset.ToString("N0")
+                        </MudText>
+                    </MudSlider>
+                </MudItem>
+
+                <!-- Status Display -->
+                <MudItem xs="3" Class="d-flex align-center">
+                    <MudText Typo="Typo.caption">
+                        @if (Playback.IsLiveMode)
+                        {
+                            <text>Now</text>
+                        }
+                        else
+                        {
+                            <text>@(Playback.IsPaused ? "⏸" : "▶") @Playback.PlaybackSpeed.ToString("0.#")x | @Playback.CurrentOffset.ToString("N0")</text>
+                        }
+                    </MudText>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<!-- Selected Vehicle Info -->
+@if (_selectedVehicle != null)
+{
+    <MudPaper Style="position: fixed; bottom: 100px; right: 16px; width: 300px; z-index: 1000;" Elevation="8">
+        <MudCard>
+            <MudCardHeader>
+                <CardHeaderAvatar>
+                    <MudAvatar Color="@GetVehicleColor(_selectedVehicle.Status)">
+                        <MudIcon Icon="@Icons.Material.Filled.LocalShipping" />
+                    </MudAvatar>
+                </CardHeaderAvatar>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">@_selectedVehicle.VehicleId</MudText>
+                    <MudText Typo="Typo.body2">@_selectedVehicle.DriverName</MudText>
+                </CardHeaderContent>
+                <CardHeaderActions>
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="() => _selectedVehicle = null" />
+                </CardHeaderActions>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudSimpleTable Dense="true">
+                    <tbody>
+                        <tr><td>Status</td><td><MudChip T="string" Size="Size.Small" Color="@GetVehicleColor(_selectedVehicle.Status)">@_selectedVehicle.Status</MudChip></td></tr>
+                        <tr><td>Speed</td><td>@_selectedVehicle.Speed.ToString("F1") km/h</td></tr>
+                        <tr><td>Heading</td><td>@_selectedVehicle.Heading.ToString("F0")°</td></tr>
+                        <tr><td>Latitude</td><td>@_selectedVehicle.Latitude.ToString("F6")</td></tr>
+                        <tr><td>Longitude</td><td>@_selectedVehicle.Longitude.ToString("F6")</td></tr>
+                        <tr><td>Updated</td><td>@_selectedVehicle.Timestamp.ToLocalTime().ToString("HH:mm:ss")</td></tr>
+                    </tbody>
+                </MudSimpleTable>
+            </MudCardContent>
+        </MudCard>
+    </MudPaper>
+}
+
+@code {
+    private VehiclePosition? _selectedVehicle;
+    private bool _mapInitialized;
+    private System.Threading.Timer? _updateTimer;
+    private bool _disposed;
+    private double _sliderValue = 100;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Initialize map
+            await JS.InvokeVoidAsync("fleetMap.initialize", "map", 52.52, 13.405, 11);
+            _mapInitialized = true;
+
+            // Subscribe to state changes from per-client playback
+            Playback.OnStateChanged += OnStateChanged;
+
+            // Start periodic UI updates
+            _updateTimer = new System.Threading.Timer(
+                async _ =>
+                {
+                    if (_disposed) return;
+                    try
+                    {
+                        await InvokeAsync(async () =>
+                        {
+                            if (_disposed) return;
+                            var positions = Playback.CurrentPositions.Values.ToList();
+                            if (_mapInitialized && positions.Count > 0)
+                            {
+                                await JS.InvokeVoidAsync("fleetMap.updateVehicles", positions);
+                            }
+                            StateHasChanged();
+                        });
+                    }
+                    catch (ObjectDisposedException) { }
+                    catch (Microsoft.JSInterop.JSDisconnectedException) { }
+                    catch (TaskCanceledException) { }
+                },
+                null,
+                TimeSpan.FromMilliseconds(100),
+                TimeSpan.FromMilliseconds(100));
+        }
+    }
+
+    private void OnLiveModeChanged(bool isLive)
+    {
+        if (isLive)
+        {
+            Playback.SetLiveMode();
+            _sliderValue = 100;
+        }
+        else
+        {
+            // Switch to replay mode - seek to current slider position
+            Playback.SeekToPercentage(_sliderValue);
+        }
+        StateHasChanged();
+    }
+
+    private void OnSliderChanged(double value)
+    {
+        _sliderValue = value;
+        if (!Playback.IsLiveMode)
+        {
+            Playback.SeekToPercentage(value);
+        }
+    }
+
+    private void OnPlayPauseClicked()
+    {
+        if (Playback.IsPaused)
+        {
+            Playback.Resume();
+        }
+        else
+        {
+            Playback.Pause();
+        }
+        StateHasChanged();
+    }
+
+    private void SetSpeed(double speed)
+    {
+        Playback.SetPlaybackSpeed(speed);
+        StateHasChanged();
+    }
+
+    private void OnStateChanged()
+    {
+        if (_mapInitialized && !_disposed)
+        {
+            _ = InvokeAsync(async () =>
+            {
+                if (_disposed) return;
+                try
+                {
+                    await JS.InvokeVoidAsync("fleetMap.updateVehicles",
+                        Playback.CurrentPositions.Values.ToList());
+
+                    if (_selectedVehicle != null &&
+                        Playback.CurrentPositions.TryGetValue(_selectedVehicle.VehicleId, out var updated))
+                    {
+                        _selectedVehicle = updated;
+                    }
+
+                    // Update slider position in live mode
+                    if (Playback.IsLiveMode)
+                    {
+                        _sliderValue = 100;
+                    }
+
+                    StateHasChanged();
+                }
+                catch (ObjectDisposedException) { }
+                catch (Microsoft.JSInterop.JSDisconnectedException) { }
+            });
+        }
+    }
+
+    private void SelectVehicle(string vehicleId)
+    {
+        if (Playback.CurrentPositions.TryGetValue(vehicleId, out var vehicle))
+        {
+            _selectedVehicle = vehicle;
+            _ = JS.InvokeVoidAsync("fleetMap.focusVehicle", vehicleId, vehicle.Latitude, vehicle.Longitude);
+        }
+    }
+
+    private static string GetVehicleIcon(string status) => status switch
+    {
+        "moving" => Icons.Material.Filled.DirectionsCar,
+        "stopped" => Icons.Material.Filled.LocalParking,
+        "idle" => Icons.Material.Filled.Timer,
+        _ => Icons.Material.Filled.LocalShipping
+    };
+
+    private static Color GetVehicleColor(string status) => status switch
+    {
+        "moving" => Color.Success,
+        "stopped" => Color.Warning,
+        "idle" => Color.Info,
+        _ => Color.Default
+    };
+
+    public async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+        Playback.OnStateChanged -= OnStateChanged;
+
+        if (_updateTimer != null)
+        {
+            await _updateTimer.DisposeAsync();
+        }
+    }
+}

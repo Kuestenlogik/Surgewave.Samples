@@ -1,0 +1,87 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#app {
+    height: 100%;
+}
+
+.mud-main-content {
+    height: calc(100vh - 64px);
+    overflow: hidden;
+}
+
+#renderCanvas {
+    width: 100%;
+    height: calc(100% - 80px);
+    touch-action: none;
+}
+
+.time-control-panel {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 16px;
+}
+
+.equipment-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.equipment-card {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.equipment-card:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.equipment-card.selected {
+    background-color: rgba(33, 150, 243, 0.2);
+    border-left: 3px solid #2196F3;
+}
+
+.anomaly-badge {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.telemetry-gauge {
+    text-align: center;
+    padding: 8px;
+}
+
+.telemetry-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.telemetry-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.status-running { color: #4CAF50; }
+.status-faulted { color: #f44336; }
+.status-maintenance { color: #2196F3; }
+.status-off { color: #9E9E9E; }
+.status-idle { color: #FFC107; }
+
+.zone-header {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+}

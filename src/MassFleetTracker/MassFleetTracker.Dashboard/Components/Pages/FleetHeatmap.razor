@@ -1,0 +1,428 @@
+@page "/"
+@rendermode RenderMode.InteractiveServer
+@using System.Text.Json
+@inject FleetDataService FleetData
+@inject AggregationService Aggregation
+@inject PlaybackState Playback
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<MudGrid Style="height: 100%;">
+    <!-- Statistics Sidebar -->
+    <MudItem xs="12" md="3" Style="height: 100%; overflow-y: auto;">
+        <MudPaper Class="pa-4" Elevation="0">
+            <!-- Connection Status -->
+            <MudAlert Severity="@(FleetData.IsConnected ? Severity.Success : Severity.Warning)"
+                      Class="mb-4" Dense="true">
+                @if (FleetData.IsConnected)
+                {
+                    <text>Connected to Surgewave</text>
+                }
+                else
+                {
+                    <text>Connecting...</text>
+                }
+            </MudAlert>
+
+            <!-- Playback Mode Indicator -->
+            <MudAlert Severity="@(Playback.IsLiveMode ? Severity.Info : Severity.Warning)"
+                      Class="mb-4" Dense="true">
+                @if (Playback.IsLiveMode)
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.FiberManualRecord" Color="Color.Error" Size="Size.Small" Class="mr-1" />
+                    <text>LIVE</text>
+                }
+                else
+                {
+                    <MudIcon Icon="@Icons.Material.Filled.History" Size="Size.Small" Class="mr-1" />
+                    <text>Replay: @Playback.CurrentTime.ToString("HH:mm:ss")</text>
+                }
+            </MudAlert>
+
+            <!-- Fleet Statistics -->
+            <MudText Typo="Typo.subtitle2" Class="mb-2">Fleet Statistics</MudText>
+            <MudSimpleTable Dense="true" Class="mb-4">
+                <tbody>
+                    <tr>
+                        <td>Total Vehicles</td>
+                        <td><strong>@_stats.TotalVehicles.ToString("N0")</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Moving</td>
+                        <td><MudChip T="string" Size="Size.Small" Color="Color.Success">@_stats.MovingVehicles.ToString("N0")</MudChip></td>
+                    </tr>
+                    <tr>
+                        <td>Stopped</td>
+                        <td><MudChip T="string" Size="Size.Small" Color="Color.Warning">@_stats.StoppedVehicles.ToString("N0")</MudChip></td>
+                    </tr>
+                    <tr>
+                        <td>Idling</td>
+                        <td><MudChip T="string" Size="Size.Small" Color="Color.Info">@_stats.IdlingVehicles.ToString("N0")</MudChip></td>
+                    </tr>
+                </tbody>
+            </MudSimpleTable>
+
+            <!-- Performance Metrics -->
+            <MudText Typo="Typo.subtitle2" Class="mb-2">Performance</MudText>
+            <MudSimpleTable Dense="true" Class="mb-4">
+                <tbody>
+                    <tr>
+                        <td>Messages/s</td>
+                        <td><strong>@_stats.MessagesPerSecond.ToString("N0")</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Total Messages</td>
+                        <td><strong>@_stats.TotalMessagesProcessed.ToString("N0")</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Active Cells</td>
+                        <td><strong>@_activeCells.Count.ToString("N0")</strong></td>
+                    </tr>
+                </tbody>
+            </MudSimpleTable>
+
+            <!-- Speed Metrics -->
+            <MudText Typo="Typo.subtitle2" Class="mb-2">Speed</MudText>
+            <MudSimpleTable Dense="true" Class="mb-4">
+                <tbody>
+                    <tr>
+                        <td>Average</td>
+                        <td><strong>@_stats.AverageSpeed.ToString("F1") km/h</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Maximum</td>
+                        <td><strong>@_stats.MaxSpeed.ToString("F1") km/h</strong></td>
+                    </tr>
+                </tbody>
+            </MudSimpleTable>
+
+            <!-- Legend -->
+            <MudText Typo="Typo.subtitle2" Class="mb-2">Heatmap Legend</MudText>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                <div style="width: 100%; height: 20px; background: linear-gradient(to right, #00ff00, #ffff00, #ff8800, #ff0000); border-radius: 4px;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <MudText Typo="Typo.caption">Low density</MudText>
+                <MudText Typo="Typo.caption">High density</MudText>
+            </div>
+        </MudPaper>
+    </MudItem>
+
+    <!-- Map and Timeline -->
+    <MudItem xs="12" md="9" Style="height: 100%; display: flex; flex-direction: column;">
+        <!-- Map -->
+        <div id="map" style="flex: 1; width: 100%;"></div>
+
+        <!-- Time Navigation Bar -->
+        <MudPaper Class="pa-2" Elevation="2" Style="margin-top: 8px;">
+            <MudGrid Spacing="2" Style="align-items: center;">
+                <!-- Playback Controls -->
+                <MudItem xs="12" sm="4">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <MudTooltip Text="Go to start">
+                            <MudIconButton Icon="@Icons.Material.Filled.SkipPrevious"
+                                           Size="Size.Small"
+                                           OnClick="() => Playback.SeekToPercentage(0)"
+                                           Disabled="@(Playback.AvailableRangeSeconds < 1)" />
+                        </MudTooltip>
+
+                        <MudTooltip Text="Step backward 10s">
+                            <MudIconButton Icon="@Icons.Material.Filled.FastRewind"
+                                           Size="Size.Small"
+                                           OnClick="() => Playback.StepBackward(10)"
+                                           Disabled="@Playback.IsLiveMode" />
+                        </MudTooltip>
+
+                        @if (Playback.IsLiveMode || Playback.IsPaused)
+                        {
+                            <MudTooltip Text="@(Playback.IsLiveMode ? "Pause and replay" : "Play")">
+                                <MudIconButton Icon="@Icons.Material.Filled.PlayArrow"
+                                               Size="Size.Small"
+                                               Color="Color.Primary"
+                                               OnClick="OnPlayPause" />
+                            </MudTooltip>
+                        }
+                        else
+                        {
+                            <MudTooltip Text="Pause">
+                                <MudIconButton Icon="@Icons.Material.Filled.Pause"
+                                               Size="Size.Small"
+                                               Color="Color.Primary"
+                                               OnClick="OnPlayPause" />
+                            </MudTooltip>
+                        }
+
+                        <MudTooltip Text="Step forward 10s">
+                            <MudIconButton Icon="@Icons.Material.Filled.FastForward"
+                                           Size="Size.Small"
+                                           OnClick="() => Playback.StepForward(10)"
+                                           Disabled="@Playback.IsLiveMode" />
+                        </MudTooltip>
+
+                        <MudTooltip Text="Go to live">
+                            <MudIconButton Icon="@Icons.Material.Filled.FiberManualRecord"
+                                           Size="Size.Small"
+                                           Color="@(Playback.IsLiveMode ? Color.Error : Color.Default)"
+                                           OnClick="() => Playback.SetLiveMode()" />
+                        </MudTooltip>
+
+                        <MudSelect T="double" Value="@Playback.PlaybackSpeed" ValueChanged="OnSpeedChanged"
+                                   Dense="true" Style="width: 70px; margin-left: 8px;" Label="Speed">
+                            <MudSelectItem Value="0.5">0.5x</MudSelectItem>
+                            <MudSelectItem Value="1.0">1x</MudSelectItem>
+                            <MudSelectItem Value="2.0">2x</MudSelectItem>
+                            <MudSelectItem Value="5.0">5x</MudSelectItem>
+                            <MudSelectItem Value="10.0">10x</MudSelectItem>
+                        </MudSelect>
+                    </div>
+                </MudItem>
+
+                <!-- Timeline Slider -->
+                <MudItem xs="12" sm="6">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <MudText Typo="Typo.caption" Style="white-space: nowrap;">
+                            @Playback.EarliestTime.ToString("HH:mm:ss")
+                        </MudText>
+                        <MudSlider T="double" Value="@_sliderValue" ValueChanged="OnSliderChanged"
+                                   Min="0" Max="100" Step="0.1"
+                                   Style="flex: 1;"
+                                   Disabled="@(Playback.AvailableRangeSeconds < 1)" />
+                        <MudText Typo="Typo.caption" Style="white-space: nowrap;">
+                            @Playback.LatestTime.ToString("HH:mm:ss")
+                        </MudText>
+                    </div>
+                </MudItem>
+
+                <!-- Current Time Display -->
+                <MudItem xs="12" sm="2" Style="text-align: right;">
+                    <MudText Typo="Typo.body2">
+                        <strong>@Playback.CurrentTime.ToString("HH:mm:ss")</strong>
+                    </MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                        @FormatTimeRange()
+                    </MudText>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<!-- Selected Cell Detail -->
+@if (_selectedCell != null)
+{
+    <MudPaper Style="position: fixed; bottom: 100px; right: 16px; width: 350px; max-height: 400px; z-index: 1000; overflow: hidden;" Elevation="8">
+        <MudCard>
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Cell [@_selectedCell.Row, @_selectedCell.Col]</MudText>
+                    <MudText Typo="Typo.body2">@_selectedCell.VehicleCount vehicles</MudText>
+                </CardHeaderContent>
+                <CardHeaderActions>
+                    <MudIconButton Icon="@Icons.Material.Filled.Close" OnClick="() => _selectedCell = null" />
+                </CardHeaderActions>
+            </MudCardHeader>
+            <MudCardContent Style="max-height: 300px; overflow-y: auto;">
+                <MudSimpleTable Dense="true">
+                    <thead>
+                        <tr>
+                            <th>Vehicle</th>
+                            <th>Status</th>
+                            <th>Speed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var vehicle in _cellVehicles)
+                        {
+                            <tr>
+                                <td>@vehicle.VehicleId</td>
+                                <td>
+                                    <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(vehicle.Status)">
+                                        @vehicle.Status
+                                    </MudChip>
+                                </td>
+                                <td>@vehicle.Speed.ToString("F0") km/h</td>
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+            </MudCardContent>
+        </MudCard>
+    </MudPaper>
+}
+
+@code {
+    private FleetStatistics _stats = new();
+    private IReadOnlyList<GridCell> _activeCells = Array.Empty<GridCell>();
+    private GridCell? _selectedCell;
+    private IReadOnlyList<VehiclePosition> _cellVehicles = Array.Empty<VehiclePosition>();
+    private bool _mapInitialized;
+    private bool _disposed;
+    private System.Threading.Timer? _updateTimer;
+    private double _sliderValue;
+    private bool _isSliding;
+
+    protected override void OnInitialized()
+    {
+        Playback.OnStateChanged += OnPlaybackStateChanged;
+
+        // Use a timer for reliable UI updates instead of events
+        _updateTimer = new System.Threading.Timer(
+            callback: _ => InvokeAsync(UpdateUI),
+            state: null,
+            dueTime: TimeSpan.FromMilliseconds(500),
+            period: TimeSpan.FromMilliseconds(500));
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Initialize map with Berlin center
+            await JS.InvokeVoidAsync("fleetHeatmap.initialize", "map", 52.50, 13.40, 11);
+            _mapInitialized = true;
+        }
+    }
+
+    private void OnPlaybackStateChanged(object? sender, EventArgs e)
+    {
+        if (!_isSliding)
+        {
+            _sliderValue = Playback.CurrentPositionPercent;
+        }
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnPlayPause()
+    {
+        if (Playback.IsLiveMode)
+        {
+            // Switch to replay at current position
+            Playback.SeekToPercentage(100);
+        }
+        else if (Playback.IsPaused)
+        {
+            Playback.Resume();
+        }
+        else
+        {
+            Playback.Pause();
+        }
+    }
+
+    private void OnSliderChanged(double value)
+    {
+        _isSliding = true;
+        _sliderValue = value;
+        Playback.SeekToPercentage(value);
+        _isSliding = false;
+    }
+
+    private void OnSpeedChanged(double speed)
+    {
+        Playback.SetPlaybackSpeed(speed);
+    }
+
+    private string FormatTimeRange()
+    {
+        var seconds = Playback.AvailableRangeSeconds;
+        if (seconds < 60) return $"{seconds:F0}s buffered";
+        if (seconds < 3600) return $"{seconds / 60:F1}m buffered";
+        return $"{seconds / 3600:F1}h buffered";
+    }
+
+    private async Task UpdateUI()
+    {
+        if (_disposed) return;
+
+        try
+        {
+            // Get data from playback state (handles live vs replay mode)
+            _stats = Playback.CurrentStatistics;
+            _activeCells = Playback.CurrentCells;
+
+            if (!_isSliding)
+            {
+                _sliderValue = Playback.CurrentPositionPercent;
+            }
+
+            if (_mapInitialized)
+            {
+                // Convert cells to heatmap data
+                var heatmapData = _activeCells.Select(c =>
+                {
+                    var (lat, lon) = Aggregation.GetCellCenter(c.Row, c.Col);
+                    return new
+                    {
+                        lat,
+                        lon,
+                        count = c.VehicleCount,
+                        avgSpeed = c.AvgSpeed,
+                        row = c.Row,
+                        col = c.Col
+                    };
+                }).ToArray();
+
+                // For live mode, also send individual vehicles for high-zoom
+                object[] vehicleData;
+                if (Playback.IsLiveMode)
+                {
+                    var vehicles = Aggregation.GetAllVehicles();
+                    vehicleData = vehicles.Select(v => new
+                    {
+                        id = v.VehicleId,
+                        lat = v.Latitude,
+                        lon = v.Longitude,
+                        speed = v.Speed,
+                        status = (int)v.Status
+                    }).ToArray<object>();
+                }
+                else
+                {
+                    vehicleData = []; // No individual vehicles in replay mode
+                }
+
+                var jsonCells = JsonSerializer.Serialize(heatmapData);
+                var jsonVehicles = JsonSerializer.Serialize(vehicleData);
+                await JS.InvokeVoidAsync("fleetHeatmap.updateAllFromJson", jsonCells, jsonVehicles);
+            }
+
+            StateHasChanged();
+        }
+        catch (ObjectDisposedException) { }
+        catch (Microsoft.JSInterop.JSDisconnectedException) { }
+        catch (InvalidOperationException) { }
+    }
+
+    [JSInvokable]
+    public void OnCellClicked(int row, int col)
+    {
+        _selectedCell = _activeCells.FirstOrDefault(c => c.Row == row && c.Col == col);
+        if (_selectedCell != null && Playback.IsLiveMode)
+        {
+            _cellVehicles = Aggregation.GetVehiclesInCell(row, col);
+        }
+        else
+        {
+            _cellVehicles = []; // No individual vehicles in replay
+        }
+        StateHasChanged();
+    }
+
+    private static Color GetStatusColor(VehicleStatus status) => status switch
+    {
+        VehicleStatus.Moving => Color.Success,
+        VehicleStatus.Stopped => Color.Warning,
+        VehicleStatus.Idling => Color.Info,
+        _ => Color.Default
+    };
+
+    public async ValueTask DisposeAsync()
+    {
+        _disposed = true;
+        Playback.OnStateChanged -= OnPlaybackStateChanged;
+        if (_updateTimer != null)
+        {
+            await _updateTimer.DisposeAsync();
+        }
+    }
+}

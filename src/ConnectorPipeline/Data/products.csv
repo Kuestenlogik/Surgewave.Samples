@@ -1,0 +1,21 @@
+id,name,category,price,quantity,last_updated
+1,Laptop Pro 15,Electronics,1299.99,50,2024-01-15T10:30:00Z
+2,Wireless Mouse,Electronics,29.99,200,2024-01-15T11:00:00Z
+3,USB-C Hub,Electronics,49.99,150,2024-01-15T11:30:00Z
+4,Mechanical Keyboard,Electronics,89.99,75,2024-01-15T12:00:00Z
+5,27" Monitor,Electronics,399.99,30,2024-01-15T12:30:00Z
+6,Office Chair,Furniture,249.99,25,2024-01-15T13:00:00Z
+7,Standing Desk,Furniture,499.99,15,2024-01-15T13:30:00Z
+8,Desk Lamp,Furniture,34.99,100,2024-01-15T14:00:00Z
+9,Webcam HD,Electronics,79.99,60,2024-01-15T14:30:00Z
+10,Headphones,Electronics,149.99,80,2024-01-15T15:00:00Z
+11,Notebook Set,Office,12.99,500,2024-01-15T15:30:00Z
+12,Pen Pack,Office,8.99,1000,2024-01-15T16:00:00Z
+13,Printer,Electronics,199.99,20,2024-01-15T16:30:00Z
+14,Paper Ream,Office,24.99,300,2024-01-15T17:00:00Z
+15,Whiteboard,Office,89.99,40,2024-01-15T17:30:00Z
+16,Cable Organizer,Accessories,14.99,250,2024-01-15T18:00:00Z
+17,Mouse Pad XL,Accessories,19.99,180,2024-01-15T18:30:00Z
+18,Monitor Stand,Accessories,59.99,45,2024-01-15T19:00:00Z
+19,USB Flash Drive 64GB,Electronics,12.99,400,2024-01-15T19:30:00Z
+20,External SSD 1TB,Electronics,109.99,35,2024-01-15T20:00:00Z

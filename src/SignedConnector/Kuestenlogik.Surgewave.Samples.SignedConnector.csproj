@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- Enables the Kuestenlogik.Surgewave.Build MSBuild task. Running `dotnet publish -c Release
+         -p:SurgewavePackPlugin=true` will produce a .swpkg in artifacts/pub/. When combined
+         with -p:SurgewaveSigningKey=<path>, the same step emits a .swpkg.sig alongside. -->
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- Deliberately no Surgewave package references — the sample is a self-contained class
+       library so readers can focus on the pack + sign + upload workflow without pulling in
+       the full Connect framework. A real connector would reference Kuestenlogik.Surgewave.Connect and
+       implement ISourceConnector / ISinkConnector. -->
+
+  <!-- Ship plugin.json next to the assembly so the Kuestenlogik.Surgewave.Build pack task finds it. -->
+  <ItemGroup>
+    <Content Include="plugin.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

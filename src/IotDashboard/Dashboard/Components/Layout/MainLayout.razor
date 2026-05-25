@@ -1,0 +1,28 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIcon Icon="@Icons.Material.Filled.Sensors" Class="mr-3" />
+        <MudText Typo="Typo.h5" Class="ml-3">IoT Dashboard</MudText>
+        <MudSpacer />
+        <MudText Typo="Typo.body2" Class="mr-4">Powered by Surgewave</MudText>
+        <MudIconButton Icon="@(_isDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
+                       Color="Color.Inherit"
+                       OnClick="@(() => _isDarkMode = !_isDarkMode)" />
+    </MudAppBar>
+
+    <MudMainContent Class="pt-4">
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _isDarkMode = true;
+}

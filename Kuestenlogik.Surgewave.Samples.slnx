@@ -1,0 +1,41 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AgentMemoryDemo/Kuestenlogik.Surgewave.Samples.AgentMemoryDemo.csproj" />
+    <Project Path="src/Agents/Kuestenlogik.Surgewave.Samples.Agents.csproj" />
+    <Project Path="src/ConfluentKafkaMigration/Kuestenlogik.Surgewave.Samples.ConfluentKafkaMigration.csproj" />
+    <Project Path="src/ConnectorPipeline/Kuestenlogik.Surgewave.Samples.ConnectorPipeline.csproj" />
+    <Project Path="src/DataPlatform/Kuestenlogik.Surgewave.Samples.DataPlatform.csproj" />
+    <Project Path="src/ECommerceAnalytics/Kuestenlogik.Surgewave.Samples.ECommerceAnalytics.csproj" />
+    <Project Path="src/DigitalTwin/Dashboard/Kuestenlogik.Surgewave.Samples.DigitalTwin.Dashboard.csproj" />
+    <Project Path="src/DigitalTwin/Generator/Kuestenlogik.Surgewave.Samples.DigitalTwin.Generator.csproj" />
+    <Project Path="src/DigitalTwin/Shared/Kuestenlogik.Surgewave.Samples.DigitalTwin.Shared.csproj" />
+    <Project Path="src/EventSourcing/Kuestenlogik.Surgewave.Samples.EventSourcing.csproj" />
+    <Project Path="src/FraudDetection/Kuestenlogik.Surgewave.Samples.FraudDetection.csproj" />
+    <Project Path="src/GuardrailsDemo/Kuestenlogik.Surgewave.Samples.GuardrailsDemo.csproj" />
+    <Project Path="src/FleetTracker/Dashboard/Kuestenlogik.Surgewave.Samples.FleetTracker.Dashboard.csproj" />
+    <Project Path="src/FleetTracker/Generator/Kuestenlogik.Surgewave.Samples.FleetTracker.Generator.csproj" />
+    <Project Path="src/FleetTracker/Shared/Kuestenlogik.Surgewave.Samples.FleetTracker.Shared.csproj" />
+    <Project Path="src/IotSchemaEvolution/Kuestenlogik.Surgewave.Samples.IotSchemaEvolution.csproj" />
+    <Project Path="src/IotDashboard/Dashboard/Kuestenlogik.Surgewave.Samples.IotDashboard.Dashboard.csproj" />
+    <Project Path="src/IotDashboard/Generator/Kuestenlogik.Surgewave.Samples.IotDashboard.Generator.csproj" />
+    <Project Path="src/IotDashboard/Shared/Kuestenlogik.Surgewave.Samples.IotDashboard.Shared.csproj" />
+    <Project Path="src/KafkaCompatibility/Kuestenlogik.Surgewave.Samples.KafkaCompatibility.csproj" />
+    <Project Path="src/LogAggregation/Kuestenlogik.Surgewave.Samples.LogAggregation.csproj" />
+    <Project Path="src/MassFleetTracker/MassFleetTracker.Dashboard/MassFleetTracker.Dashboard.csproj" />
+    <Project Path="src/MassFleetTracker/MassFleetTracker.Generator/MassFleetTracker.Generator.csproj" />
+    <Project Path="src/MassFleetTracker/MassFleetTracker.Shared/MassFleetTracker.Shared.csproj" />
+    <Project Path="src/MultimodalDemo/Kuestenlogik.Surgewave.Samples.MultimodalDemo.csproj" />
+    <Project Path="src/MultiProtocol/Kuestenlogik.Surgewave.Samples.MultiProtocol.csproj" />
+    <Project Path="src/NativeClient/Kuestenlogik.Surgewave.Samples.NativeClient.csproj" />
+    <Project Path="src/NotificationHub/Kuestenlogik.Surgewave.Samples.NotificationHub.csproj" />
+    <Project Path="src/OrderSaga/Kuestenlogik.Surgewave.Samples.OrderSaga.csproj" />
+    <Project Path="src/PaymentGateway/Kuestenlogik.Surgewave.Samples.PaymentGateway.csproj" />
+    <Project Path="src/PipelineChat/Kuestenlogik.Surgewave.Samples.PipelineChat.csproj" />
+    <Project Path="src/RagPipeline/Kuestenlogik.Surgewave.Samples.RagPipeline.csproj" />
+    <Project Path="src/RagWithSurgewaveAI/Kuestenlogik.Surgewave.Samples.RagWithSurgewaveAI.csproj" />
+    <Project Path="src/SignedConnector/Kuestenlogik.Surgewave.Samples.SignedConnector.csproj" />
+    <Project Path="src/SmartFactory/Kuestenlogik.Surgewave.Samples.SmartFactory.csproj" />
+    <Project Path="src/SurgewaveChat/Kuestenlogik.Surgewave.Samples.SurgewaveChat.csproj" />
+    <Project Path="src/SupplyChainTracker/Kuestenlogik.Surgewave.Samples.SupplyChainTracker.csproj" />
+  </Folder>
+</Solution>

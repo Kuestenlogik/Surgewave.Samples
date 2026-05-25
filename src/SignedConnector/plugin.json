@@ -1,0 +1,10 @@
+{
+  "id": "Kuestenlogik.Surgewave.Samples.SignedConnector",
+  "name": "Signed Connector Sample",
+  "version": "1.0.0",
+  "description": "A minimal source connector wired up to demonstrate the end-to-end plugin signing workflow.",
+  "authors": ["Kuestenlogik"],
+  "license": "Apache-2.0",
+  "tags": ["sample", "signing", "tutorial"],
+  "assemblies": ["Kuestenlogik.Surgewave.Samples.SignedConnector.dll"]
+}

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MassFleetTracker.Shared\MassFleetTracker.Shared.csproj" />
+    <PackageReference Include="Kuestenlogik.Surgewave.Client" />
+  </ItemGroup>
+
+</Project>

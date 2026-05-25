@@ -1,0 +1,283 @@
+@page "/"
+@inject SensorDataService SensorService
+@implements IDisposable
+
+<PageTitle>IoT Dashboard</PageTitle>
+
+<!-- Alert Banner -->
+@if (_alerts.Any())
+{
+    <MudAlert Severity="@GetAlertSeverity()" Class="mb-4" Variant="Variant.Filled">
+        <MudText>@_alerts.Count() active alert(s): @string.Join(", ", _alerts.Take(3).Select(a => $"{a.SensorId}: {a.Message}"))</MudText>
+    </MudAlert>
+}
+
+<!-- Summary Cards -->
+<MudGrid Class="mb-4">
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="2" Class="pa-4">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.Sensors" Size="Size.Large" Color="Color.Primary" />
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h4">@_readings.Count()</MudText>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">Active Sensors</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="2" Class="pa-4">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.Thermostat" Size="Size.Large" Color="Color.Info" />
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h4">@GetAverageTemp().ToString("F1")°C</MudText>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">Avg Temperature</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="2" Class="pa-4">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.WaterDrop" Size="Size.Large" Color="Color.Secondary" />
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h4">@GetAverageHumidity().ToString("F1")%</MudText>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">Avg Humidity</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="2" Class="pa-4">
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudIcon Icon="@Icons.Material.Filled.Warning" Size="Size.Large"
+                         Color="@(_alerts.Any() ? Color.Error : Color.Success)" />
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.h4">@_alerts.Count()</MudText>
+                    <MudText Typo="Typo.body2" Class="mud-text-secondary">Active Alerts</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<!-- Charts Row -->
+<MudGrid Class="mb-4">
+    <MudItem xs="12" md="6">
+        <MudPaper Elevation="2" Class="pa-4">
+            <MudText Typo="Typo.h6" Class="mb-2">Temperature by Location</MudText>
+            @if (_temperatureSeries.Count > 0)
+            {
+                <MudChart ChartType="ChartType.Line"
+                          ChartSeries="@_temperatureSeries"
+                          XAxisLabels="@_temperatureLabels"
+                          Width="100%" Height="300px" />
+            }
+            else
+            {
+                <MudText Class="mud-text-secondary">Waiting for data...</MudText>
+            }
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" md="6">
+        <MudPaper Elevation="2" Class="pa-4">
+            <MudText Typo="Typo.h6" Class="mb-2">Humidity by Location</MudText>
+            @if (_humiditySeries.Count > 0)
+            {
+                <MudChart ChartType="ChartType.Line"
+                          ChartSeries="@_humiditySeries"
+                          XAxisLabels="@_humidityLabels"
+                          Width="100%" Height="300px" />
+            }
+            else
+            {
+                <MudText Class="mud-text-secondary">Waiting for data...</MudText>
+            }
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<!-- Sensor Readings Table -->
+<MudPaper Elevation="2" Class="pa-4">
+    <MudText Typo="Typo.h6" Class="mb-2">Live Sensor Readings</MudText>
+    <MudTable Items="@_readings" Dense="true" Hover="true" Striped="true" FixedHeader="true" Height="400px">
+        <HeaderContent>
+            <MudTh>Sensor ID</MudTh>
+            <MudTh>Type</MudTh>
+            <MudTh>Location</MudTh>
+            <MudTh>Value</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh>Last Update</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Sensor ID">@context.SensorId</MudTd>
+            <MudTd DataLabel="Type">
+                <MudChip T="string" Size="Size.Small" Color="@GetTypeColor(context.Type)">
+                    @context.Type
+                </MudChip>
+            </MudTd>
+            <MudTd DataLabel="Location">@context.Location</MudTd>
+            <MudTd DataLabel="Value">@context.Value.ToString("F2") @context.Unit</MudTd>
+            <MudTd DataLabel="Status">
+                @{
+                    var severity = SensorThresholds.CheckThreshold(context.Type, context.Value);
+                }
+                <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(severity)">
+                    @(severity?.ToString() ?? "Normal")
+                </MudChip>
+            </MudTd>
+            <MudTd DataLabel="Last Update">@context.Timestamp.ToLocalTime().ToString("HH:mm:ss")</MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudPaper>
+
+@code {
+    private IEnumerable<SensorReading> _readings = [];
+    private IEnumerable<SensorAlert> _alerts = [];
+
+    private List<ChartSeries> _temperatureSeries = [];
+    private List<ChartSeries> _humiditySeries = [];
+    private string[] _temperatureLabels = [];
+    private string[] _humidityLabels = [];
+
+    protected override void OnInitialized()
+    {
+        SensorService.OnDataUpdated += OnDataUpdated;
+        RefreshData();
+    }
+
+    private void OnDataUpdated()
+    {
+        InvokeAsync(() =>
+        {
+            RefreshData();
+            StateHasChanged();
+        });
+    }
+
+    private void RefreshData()
+    {
+        _readings = SensorService.LatestReadings.OrderBy(r => r.Location).ThenBy(r => r.Type).ToList();
+        _alerts = SensorService.ActiveAlerts.ToList();
+
+        // Update chart data
+        UpdateChartData();
+    }
+
+    private void UpdateChartData()
+    {
+        var tempReadings = _readings.Where(r => r.Type == SensorType.Temperature).ToList();
+        var humidityReadings = _readings.Where(r => r.Type == SensorType.Humidity).ToList();
+
+        // Build temperature chart data grouped by location
+        var tempByLocation = new Dictionary<string, List<(DateTimeOffset Timestamp, double Value)>>();
+        foreach (var reading in tempReadings)
+        {
+            var history = SensorService.GetHistory(reading.SensorId).TakeLast(30).ToList();
+            if (history.Count > 0)
+            {
+                if (!tempByLocation.ContainsKey(reading.Location))
+                    tempByLocation[reading.Location] = [];
+                tempByLocation[reading.Location].AddRange(
+                    history.Select(h => (h.Timestamp, h.Value)));
+            }
+        }
+
+        if (tempByLocation.Count > 0)
+        {
+            // Use timestamps from the first location as shared labels
+            var firstLocation = tempByLocation.First().Value;
+            _temperatureLabels = firstLocation
+                .Select(p => p.Timestamp.ToLocalTime().ToString("HH:mm:ss"))
+                .ToArray();
+
+            _temperatureSeries = tempByLocation.Select(kvp => new ChartSeries
+            {
+                Name = kvp.Key,
+                Data = kvp.Value.Select(p => p.Value).ToArray()
+            }).ToList();
+        }
+        else
+        {
+            _temperatureSeries = [];
+            _temperatureLabels = [];
+        }
+
+        // Build humidity chart data grouped by location
+        var humByLocation = new Dictionary<string, List<(DateTimeOffset Timestamp, double Value)>>();
+        foreach (var reading in humidityReadings)
+        {
+            var history = SensorService.GetHistory(reading.SensorId).TakeLast(30).ToList();
+            if (history.Count > 0)
+            {
+                if (!humByLocation.ContainsKey(reading.Location))
+                    humByLocation[reading.Location] = [];
+                humByLocation[reading.Location].AddRange(
+                    history.Select(h => (h.Timestamp, h.Value)));
+            }
+        }
+
+        if (humByLocation.Count > 0)
+        {
+            var firstLocation = humByLocation.First().Value;
+            _humidityLabels = firstLocation
+                .Select(p => p.Timestamp.ToLocalTime().ToString("HH:mm:ss"))
+                .ToArray();
+
+            _humiditySeries = humByLocation.Select(kvp => new ChartSeries
+            {
+                Name = kvp.Key,
+                Data = kvp.Value.Select(p => p.Value).ToArray()
+            }).ToList();
+        }
+        else
+        {
+            _humiditySeries = [];
+            _humidityLabels = [];
+        }
+    }
+
+    private double GetAverageTemp()
+    {
+        var temps = _readings.Where(r => r.Type == SensorType.Temperature).Select(r => r.Value).ToList();
+        return temps.Count > 0 ? temps.Average() : 0;
+    }
+
+    private double GetAverageHumidity()
+    {
+        var humidity = _readings.Where(r => r.Type == SensorType.Humidity).Select(r => r.Value).ToList();
+        return humidity.Count > 0 ? humidity.Average() : 0;
+    }
+
+    private Severity GetAlertSeverity()
+    {
+        if (_alerts.Any(a => a.Severity == AlertSeverity.Critical))
+            return Severity.Error;
+        if (_alerts.Any(a => a.Severity == AlertSeverity.Warning))
+            return Severity.Warning;
+        return Severity.Info;
+    }
+
+    private Color GetTypeColor(SensorType type) => type switch
+    {
+        SensorType.Temperature => Color.Error,
+        SensorType.Humidity => Color.Info,
+        SensorType.Pressure => Color.Warning,
+        SensorType.CO2 => Color.Secondary,
+        SensorType.Light => Color.Tertiary,
+        _ => Color.Default
+    };
+
+    private Color GetStatusColor(AlertSeverity? severity) => severity switch
+    {
+        AlertSeverity.Critical => Color.Error,
+        AlertSeverity.Warning => Color.Warning,
+        _ => Color.Success
+    };
+
+    public void Dispose()
+    {
+        SensorService.OnDataUpdated -= OnDataUpdated;
+    }
+
+}

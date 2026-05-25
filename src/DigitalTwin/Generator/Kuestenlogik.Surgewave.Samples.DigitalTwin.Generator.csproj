@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Suppress warnings: Random is fine for simulation, protected fields OK for inheritance -->
+    <NoWarn>$(NoWarn);CA5394;CA1051;CA1024</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Kuestenlogik.Surgewave.Samples.DigitalTwin.Shared.csproj" />
+    <PackageReference Include="Kuestenlogik.Surgewave.Client" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" />
+  </ItemGroup>
+
+</Project>

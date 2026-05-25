@@ -1,0 +1,22 @@
+@inherits LayoutComponentBase
+@using MudBlazor
+
+<MudThemeProvider IsDarkMode="true" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1" Color="Color.Primary">
+        <MudIcon Icon="@Icons.Material.Filled.LocalShipping" Class="mr-2" />
+        <MudText Typo="Typo.h6">Fleet Tracker</MudText>
+        <MudSpacer />
+        <MudText Typo="Typo.body2" Class="mr-4">Surgewave Native API Demo</MudText>
+        <MudIconButton Icon="@Icons.Material.Filled.Code" Color="Color.Inherit"
+                       Href="https://github.com/Kuestenlogik/Surgewave" Target="_blank" />
+    </MudAppBar>
+
+    <MudMainContent Style="height: calc(100vh - 64px);">
+        @Body
+    </MudMainContent>
+</MudLayout>

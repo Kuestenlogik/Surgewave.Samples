@@ -1,0 +1,52 @@
+<Project>
+  <!-- Central Package Version Management -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Surgewave Core (from local or CI NuGet feed) -->
+    <PackageVersion Include="Kuestenlogik.Surgewave.Plugins" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Client" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Core" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Runtime" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Streams" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Testing.Chaos" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Client.SchemaRegistry" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Client.SchemaRegistry.Json" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Api.Grpc.Client" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Connect" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Compatibility.Confluent.Kafka" Version="0.1.0" />
+    <!-- Surgewave Connectors (from local or CI NuGet feed) -->
+    <PackageVersion Include="Kuestenlogik.Surgewave.Connector.Csv" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Connector.Database" Version="0.1.0" />
+    <!-- Surgewave AI (from local or CI NuGet feed) -->
+    <PackageVersion Include="Kuestenlogik.Surgewave.AI.Agents" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.AI.Guardrails" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.AI.Prompts" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.AI.Evaluation" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.AI.Multimodal" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.AI.Documents" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.AI.Retrieval" Version="0.1.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.AI.Rag" Version="0.1.0" />
+    <!-- Kafka -->
+    <PackageVersion Include="Confluent.Kafka" Version="2.13.0" />
+    <!-- gRPC -->
+    <PackageVersion Include="Grpc.Net.Client" Version="2.76.0" />
+    <!-- CLI / UI -->
+    <PackageVersion Include="Spectre.Console" Version="0.54.0" />
+    <PackageVersion Include="MudBlazor" Version="8.15.0" />
+
+    <!-- Database -->
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.2" />
+    <!-- AI -->
+    <PackageVersion Include="OpenAI" Version="2.8.0" />
+    <PackageVersion Include="Qdrant.Client" Version="1.16.1" />
+    <PackageVersion Include="OllamaSharp" Version="5.4.16" />
+    <PackageVersion Include="Microsoft.Extensions.AI" Version="10.1.1" />
+    <PackageVersion Include="Microsoft.Extensions.AI.OpenAI" Version="10.1.1-preview.1.25612.2" />
+    <!-- Hosting -->
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
+    <!-- Reactive -->
+    <PackageVersion Include="System.Reactive" Version="6.1.0" />
+  </ItemGroup>
+</Project>

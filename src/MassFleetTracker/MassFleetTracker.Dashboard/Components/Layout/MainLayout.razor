@@ -1,0 +1,18 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider IsDarkMode="true" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout Style="height: 100vh; display: flex; flex-direction: column;">
+    <MudAppBar Elevation="1" Dense="true" Fixed="false">
+        <MudIcon Icon="@Icons.Material.Filled.LocalShipping" Class="mr-2" />
+        <MudText Typo="Typo.h6">MassFleetTracker</MudText>
+        <MudSpacer />
+        <MudText Typo="Typo.caption" Class="mud-text-secondary">100k Vehicle Simulation</MudText>
+    </MudAppBar>
+    <MudMainContent Style="flex: 1; padding: 0; overflow: hidden;">
+        @Body
+    </MudMainContent>
+</MudLayout>
