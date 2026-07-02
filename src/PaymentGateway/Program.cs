@@ -7,6 +7,7 @@ using Kuestenlogik.Surgewave.Client.Abstractions;
 using Kuestenlogik.Surgewave.Client.Consumer;
 using Kuestenlogik.Surgewave.Client.Serialization;
 using Kuestenlogik.Surgewave.Broker;
+using Kuestenlogik.Surgewave.Core.Storage;
 using Kuestenlogik.Surgewave.Runtime;
 using Kuestenlogik.Surgewave.Testing.Chaos;
 using Spectre.Console;
@@ -40,7 +41,7 @@ AnsiConsole.MarkupLine("[blue]== Phase 1: Starting 3-Broker Cluster ==[/]\n");
 var broker1 = await SurgewaveRuntime.CreateBuilder()
     .WithBrokerId(0)
     .WithPort(0)
-    .WithStorageMode(StorageMode.Memory)
+    .WithStorageEngine(StorageEngines.Memory)
     .WithAutoCreateTopics(true)
     .WithPartitions(3)
     .WithReplicationFactor(1) // Single-node replication in this demo
@@ -50,7 +51,7 @@ var broker1 = await SurgewaveRuntime.CreateBuilder()
 var broker2 = await SurgewaveRuntime.CreateBuilder()
     .WithBrokerId(1)
     .WithPort(0)
-    .WithStorageMode(StorageMode.Memory)
+    .WithStorageEngine(StorageEngines.Memory)
     .WithAutoCreateTopics(true)
     .WithPartitions(3)
     .WithReplicationFactor(1)
@@ -60,7 +61,7 @@ var broker2 = await SurgewaveRuntime.CreateBuilder()
 var broker3 = await SurgewaveRuntime.CreateBuilder()
     .WithBrokerId(2)
     .WithPort(0)
-    .WithStorageMode(StorageMode.Memory)
+    .WithStorageEngine(StorageEngines.Memory)
     .WithAutoCreateTopics(true)
     .WithPartitions(3)
     .WithReplicationFactor(1)
@@ -212,7 +213,7 @@ await AnsiConsole.Progress()
                 broker2 = await SurgewaveRuntime.CreateBuilder()
                     .WithBrokerId(1)
                     .WithPort(0)
-                    .WithStorageMode(StorageMode.Memory)
+                    .WithStorageEngine(StorageEngines.Memory)
                     .WithAutoCreateTopics(true)
                     .WithPartitions(3)
                     .Build()

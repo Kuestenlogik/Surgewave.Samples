@@ -7,6 +7,7 @@ using Kuestenlogik.Surgewave.Client.Abstractions;
 using Kuestenlogik.Surgewave.Client.Consumer;
 using Kuestenlogik.Surgewave.Client.Serialization;
 using Kuestenlogik.Surgewave.Broker;
+using Kuestenlogik.Surgewave.Core.Storage;
 using Kuestenlogik.Surgewave.Runtime;
 using Kuestenlogik.Surgewave.AI.Guardrails;
 using Spectre.Console;
@@ -89,7 +90,7 @@ AnsiConsole.MarkupLine("[yellow]Starting embedded Surgewave broker...[/]");
 
 await using var surgewave = await SurgewaveRuntime.CreateBuilder()
     .WithPort(0)
-    .WithStorageMode(StorageMode.Memory)
+    .WithStorageEngine(StorageEngines.Memory)
     .WithAutoCreateTopics(true)
     .WithPartitions(5)
     .Build()
