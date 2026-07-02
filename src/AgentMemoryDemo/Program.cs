@@ -213,7 +213,7 @@ foreach (var msg in conversationHistory)
     var preview = msg.Content.Length > 70
         ? string.Concat(msg.Content.AsSpan(0, 67), "...")
         : msg.Content;
-    AnsiConsole.MarkupLine($"    [{roleColor}][{msg.Role}][/] {Markup.Escape(preview)}");
+    AnsiConsole.MarkupLine($"    [{roleColor}][[{msg.Role}]][/] {Markup.Escape(preview)}");
 }
 
 AnsiConsole.WriteLine();
