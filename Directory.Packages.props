@@ -48,10 +48,10 @@
     <PackageVersion Include="OpenAI" Version="2.8.0" />
     <PackageVersion Include="Qdrant.Client" Version="1.16.1" />
     <PackageVersion Include="OllamaSharp" Version="5.4.16" />
-    <PackageVersion Include="Microsoft.Extensions.AI" Version="10.1.1" />
-    <PackageVersion Include="Microsoft.Extensions.AI.OpenAI" Version="10.1.1-preview.1.25612.2" />
+    <PackageVersion Include="Microsoft.Extensions.AI" Version="10.6.0" />
+    <PackageVersion Include="Microsoft.Extensions.AI.OpenAI" Version="10.6.0" />
     <!-- Hosting -->
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.8" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.11" />
     <!-- Reactive -->
     <PackageVersion Include="System.Reactive" Version="6.1.0" />
   </ItemGroup>
