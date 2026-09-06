@@ -43,7 +43,7 @@
     <PackageVersion Include="MudBlazor" Version="8.15.0" />
 
     <!-- Database -->
-    <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.8" />
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.11" />
     <!-- AI -->
     <PackageVersion Include="OpenAI" Version="2.8.0" />
     <PackageVersion Include="Qdrant.Client" Version="1.16.1" />
