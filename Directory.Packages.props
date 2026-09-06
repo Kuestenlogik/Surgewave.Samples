@@ -40,7 +40,7 @@
     <PackageVersion Include="Grpc.Net.Client" Version="2.80.0" />
     <!-- CLI / UI -->
     <PackageVersion Include="Spectre.Console" Version="0.54.0" />
-    <PackageVersion Include="MudBlazor" Version="8.15.0" />
+    <PackageVersion Include="MudBlazor" Version="9.9.0" />
 
     <!-- Database -->
     <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.8" />
