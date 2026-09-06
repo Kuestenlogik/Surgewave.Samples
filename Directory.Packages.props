@@ -35,7 +35,7 @@
     <PackageVersion Include="Kuestenlogik.Surgewave.AI.Retrieval" Version="0.1.0" />
     <PackageVersion Include="Kuestenlogik.Surgewave.AI.Rag" Version="0.1.0" />
     <!-- Kafka -->
-    <PackageVersion Include="Confluent.Kafka" Version="2.14.0" />
+    <PackageVersion Include="Confluent.Kafka" Version="2.15.0" />
     <!-- gRPC -->
     <PackageVersion Include="Grpc.Net.Client" Version="2.80.0" />
     <!-- CLI / UI -->
