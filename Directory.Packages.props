@@ -19,7 +19,7 @@
     <PackageVersion Include="Kuestenlogik.Surgewave.Testing.Chaos" Version="0.3.1" />
     <PackageVersion Include="Kuestenlogik.Surgewave.Client.SchemaRegistry" Version="0.3.1" />
     <PackageVersion Include="Kuestenlogik.Surgewave.Client.SchemaRegistry.Json" Version="0.3.1" />
-    <PackageVersion Include="Kuestenlogik.Surgewave.Api.Grpc.Client" Version="0.3.1" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Api.Grpc.Client" Version="0.5.1" />
     <PackageVersion Include="Kuestenlogik.Surgewave.Connect" Version="0.3.1" />
     <PackageVersion Include="Kuestenlogik.Surgewave.Compatibility.Confluent.Kafka" Version="0.3.1" />
     <!-- Surgewave Connectors (from local or CI NuGet feed) -->
