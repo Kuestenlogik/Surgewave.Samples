@@ -2,12 +2,12 @@
   <!-- Central Package Version Management -->
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <!-- Noetig, damit der Microsoft.OpenApi-Pin transitive Abhaengigkeiten greift. -->
+    <!-- Needed so that the Microsoft.OpenApi pin applies to transitive dependencies. -->
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
-    <!-- Transitive Pins: Microsoft.OpenApi 2.0.0 (aus Surgewave 0.3.0) hat GHSA-v5pm-xwqc-g5wc;
-         2.9.0 ist die gepatchte 2.x-Linie. -->
+    <!-- Transitive pins: Microsoft.OpenApi 2.0.0 (from Surgewave 0.3.0) has GHSA-v5pm-xwqc-g5wc;
+         2.9.0 is the patched 2.x line. -->
     <PackageVersion Include="Microsoft.OpenApi" Version="2.9.0" />
 
     <!-- Surgewave Core (from local or CI NuGet feed) -->
@@ -56,8 +56,8 @@
     <PackageVersion Include="System.Reactive" Version="6.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <!-- SQLitePCLRaw.lib.e_sqlite3 2.1.11: Advisory ohne gepatchte Version (2.1.11 ist latest 2.x;
-         3.x ist eine andere Major-Linie). Unterdrueckt bis Upstream-Fix — Tracking siehe Surgewave#54. -->
+    <!-- SQLitePCLRaw.lib.e_sqlite3 2.1.11: advisory without a patched version (2.1.11 is the latest 2.x;
+         3.x is a different major line). Suppressed until an upstream fix — tracked in Surgewave#54. -->
     <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-2m69-gcr7-jv3q" />
   </ItemGroup>
 </Project>

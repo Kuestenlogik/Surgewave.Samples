@@ -1,0 +1,23 @@
+name: Language
+
+# Everything in this repository is English. Another language only as a
+# translation resource or payload data, listed with a reason in
+# .github/language-allowlist.txt.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  english-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Language guard (English only)
+        run: node scripts/check-english.mjs
