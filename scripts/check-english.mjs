@@ -18,7 +18,8 @@
 
 import { execFileSync } from 'node:child_process';
 import { readFileSync, existsSync } from 'node:fs';
-import { join, extname } from 'node:path';
+import { join, extname, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const root = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
 const showAll = process.argv.includes('--all');
@@ -100,6 +101,7 @@ function loadAllowlist() {
   return entries;
 }
 
+const self = relative(root, fileURLToPath(import.meta.url)).split('\\').join('/');
 const allow = loadAllowlist();
 const files = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8', maxBuffer: 1 << 28 })
   .split('\0').filter(Boolean);
@@ -108,7 +110,8 @@ let findings = 0;
 for (const file of files) {
   if (binaryExt.has(extname(file).toLowerCase())) continue;
   if (file.endsWith('package-lock.json') || /\.min\.(js|css)$/.test(file)) continue;
-  if (file === '.github/language-allowlist.txt') continue;
+  // The guard's own word lists and the allowlist are German by design.
+  if (file === self || file === '.github/language-allowlist.txt') continue;
   const full = join(root, file);
   if (!existsSync(full)) continue;
   const buf = readFileSync(full);
