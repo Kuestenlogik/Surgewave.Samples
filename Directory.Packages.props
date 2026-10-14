@@ -43,7 +43,7 @@
     <PackageVersion Include="MudBlazor" Version="8.15.0" />
 
     <!-- Database -->
-    <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.8" />
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="10.0.13" />
     <!-- AI -->
     <PackageVersion Include="OpenAI" Version="2.8.0" />
     <PackageVersion Include="Qdrant.Client" Version="1.16.1" />
@@ -51,7 +51,7 @@
     <PackageVersion Include="Microsoft.Extensions.AI" Version="10.6.0" />
     <PackageVersion Include="Microsoft.Extensions.AI.OpenAI" Version="10.6.0" />
     <!-- Hosting -->
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.11" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.13" />
     <!-- Reactive -->
     <PackageVersion Include="System.Reactive" Version="6.1.0" />
   </ItemGroup>
