@@ -12,19 +12,19 @@
 
     <!-- Surgewave Core (from local or CI NuGet feed) -->
     <PackageVersion Include="Kuestenlogik.Surgewave.Plugins" Version="0.3.1" />
-    <PackageVersion Include="Kuestenlogik.Surgewave.Client" Version="0.3.1" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Client" Version="0.6.0" />
     <PackageVersion Include="Kuestenlogik.Surgewave.Core" Version="0.3.1" />
-    <PackageVersion Include="Kuestenlogik.Surgewave.Runtime" Version="0.3.1" />
-    <PackageVersion Include="Kuestenlogik.Surgewave.Streams" Version="0.3.1" />
-    <PackageVersion Include="Kuestenlogik.Surgewave.Testing.Chaos" Version="0.3.1" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Runtime" Version="0.6.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Streams" Version="0.6.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Testing.Chaos" Version="0.6.0" />
     <PackageVersion Include="Kuestenlogik.Surgewave.Client.SchemaRegistry" Version="0.3.1" />
     <PackageVersion Include="Kuestenlogik.Surgewave.Client.SchemaRegistry.Json" Version="0.3.1" />
-    <PackageVersion Include="Kuestenlogik.Surgewave.Api.Grpc.Client" Version="0.3.1" />
-    <PackageVersion Include="Kuestenlogik.Surgewave.Connect" Version="0.3.1" />
-    <PackageVersion Include="Kuestenlogik.Surgewave.Compatibility.Confluent.Kafka" Version="0.3.1" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Api.Grpc.Client" Version="0.6.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Connect" Version="0.6.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Compatibility.Confluent.Kafka" Version="0.6.0" />
     <!-- Surgewave Connectors (from local or CI NuGet feed) -->
-    <PackageVersion Include="Kuestenlogik.Surgewave.Connector.Csv" Version="0.1.4" />
-    <PackageVersion Include="Kuestenlogik.Surgewave.Connector.Database" Version="0.1.4" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Connector.Csv" Version="0.4.0" />
+    <PackageVersion Include="Kuestenlogik.Surgewave.Connector.Database" Version="0.4.0" />
     <!-- Surgewave AI (from local or CI NuGet feed) -->
     <PackageVersion Include="Kuestenlogik.Surgewave.AI.Agents" Version="0.1.0" />
     <PackageVersion Include="Kuestenlogik.Surgewave.AI.Guardrails" Version="0.1.0" />
